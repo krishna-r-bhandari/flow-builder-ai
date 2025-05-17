@@ -15,6 +15,8 @@ import {
   NodeChange,
   EdgeChange,
   XYPosition,
+  addEdge,
+  ReactFlowInstance,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -40,7 +42,7 @@ const FlowCanvas = () => {
   } = useFlow();
   
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { project } = useReactFlow();
+  const reactFlowInstance = useReactFlow();
   
   // Handle node changes (selection, position, etc.)
   const onNodesChange = useCallback(
@@ -57,7 +59,7 @@ const FlowCanvas = () => {
   // Handle creating new connections between nodes
   const onConnect = useCallback(
     (connection: Connection) => {
-      setEdges((eds) => [...eds, { ...connection, animated: true }]);
+      setEdges((eds) => addEdge({ ...connection, id: `edge-${Date.now()}`, animated: true }, eds));
     },
     [setEdges]
   );
@@ -90,10 +92,10 @@ const FlowCanvas = () => {
       
       // Get the position of the drop
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      const position = project({
+      const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
-      }) as XYPosition;
+      });
       
       // Create a new node
       const newNode = {
@@ -119,7 +121,7 @@ const FlowCanvas = () => {
       // Add the new node
       setNodes((nds) => [...nds, newNode]);
     },
-    [project, setNodes, updateNodeConfig]
+    [reactFlowInstance, setNodes, updateNodeConfig]
   );
   
   // Handle background click (deselect nodes)
