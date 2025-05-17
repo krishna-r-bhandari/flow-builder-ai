@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,10 +96,19 @@
   border: 1px solid #f97316;
 }
 
+.node-trigger {
+  background-color: rgba(240, 177, 0, 0.2);
+  border: 1px solid #f0b100;
+}
+
 .react-flow__node.selected {
   box-shadow: 0 0 0 2px #ffffff;
 }
 
 .react-flow__edge-path {
   stroke-width: 2;
+}
+
+.react-flow__minimap-svg {
+  background-color: #121212 !important;
 }

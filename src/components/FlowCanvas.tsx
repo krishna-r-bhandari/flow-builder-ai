@@ -1,12 +1,11 @@
-
-import React, { useCallback, useRef } from 'react';
-import { 
-  ReactFlow, 
-  Background, 
-  Controls, 
+import React, { useCallback, useRef } from "react";
+import {
+  ReactFlow,
+  Background,
+  Controls,
   MiniMap,
-  Connection, 
-  Edge, 
+  Connection,
+  Edge,
   Node,
   useReactFlow,
   applyNodeChanges,
@@ -16,18 +15,19 @@ import {
   addEdge,
   Panel,
   NodeTypes,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import { Trash2 } from 'lucide-react';
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+import { Trash2 } from "lucide-react";
 
-import CustomNode from './nodes/CustomNode';
-import { useFlow } from '@/context/FlowContext';
-import { NodeData } from './nodes/CustomNode';
+import CustomNode from "./nodes/CustomNode";
+import { useFlow } from "@/context/FlowContext";
+import { NodeData } from "./nodes/CustomNode";
 import { Button } from "./ui/button";
-import { toast } from 'sonner';
+import { toast } from "sonner";
 
 // Define node types with proper casting
 const nodeTypes: NodeTypes = {
+  trigger: CustomNode as any,
   llm: CustomNode as any,
   tool: CustomNode as any,
   memory: CustomNode as any,
@@ -35,43 +35,50 @@ const nodeTypes: NodeTypes = {
 };
 
 const FlowCanvas = () => {
-  const { 
-    nodes, 
-    edges, 
-    setNodes, 
-    setEdges, 
+  const {
+    nodes,
+    edges,
+    setNodes,
+    setEdges,
     selectedNodeId,
     setSelectedNodeId,
-    updateNodeConfig 
+    updateNodeConfig,
   } = useFlow();
-  
+
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useReactFlow();
-  
+
   // Handle node changes (selection, position, etc.)
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    (changes: NodeChange[]) =>
+      setNodes((nds) => applyNodeChanges(changes, nds)),
     [setNodes]
   );
-  
+
   // Handle edge changes
   const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    (changes: EdgeChange[]) =>
+      setEdges((eds) => applyEdgeChanges(changes, eds)),
     [setEdges]
   );
-  
+
   // Handle creating new connections between nodes
   const onConnect = useCallback(
     (connection: Connection) => {
-      setEdges((eds) => addEdge({ 
-        ...connection, 
-        id: `edge-${Date.now()}`, 
-        animated: true 
-      }, eds));
+      setEdges((eds) =>
+        addEdge(
+          {
+            ...connection,
+            id: `edge-${Date.now()}`,
+            animated: true,
+          },
+          eds
+        )
+      );
     },
     [setEdges]
   );
-  
+
   // Handle node selection
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
@@ -79,32 +86,32 @@ const FlowCanvas = () => {
     },
     [setSelectedNodeId]
   );
-  
+
   // Handle drag over for new nodes
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
+    event.dataTransfer.dropEffect = "move";
   }, []);
-  
+
   // Handle dropping new nodes on the canvas
   const onDrop = useCallback(
     (event: React.DragEvent) => {
       event.preventDefault();
-      
-      const nodeType = event.dataTransfer.getData('application/reactflow');
-      
+
+      const nodeType = event.dataTransfer.getData("application/reactflow");
+
       // Check if we have node data
       if (!nodeType || !reactFlowWrapper.current) {
         return;
       }
-      
+
       // Get the position of the drop
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       });
-      
+
       // Create a new node with proper typing
       const newNode: Node<NodeData> = {
         id: `${nodeType}-${Date.now()}`,
@@ -114,24 +121,28 @@ const FlowCanvas = () => {
           label: `${nodeType.charAt(0).toUpperCase() + nodeType.slice(1)} Node`,
         },
       };
-      
+
       // Initialize default node config based on type
       const defaultConfigs = {
-        llm: { model: 'gpt-4', temperature: 0.7 },
-        tool: { toolName: 'web-search' },
-        memory: { memoryType: 'buffer', window: 10 },
-        output: { format: 'text' },
+        trigger: { trigger: "manual" },
+        llm: { model: "gpt-4", temperature: 0.7 },
+        tool: { toolName: "web-search" },
+        memory: { memoryType: "buffer", window: 10 },
+        output: { format: "text" },
       };
-      
+
       // Update node configs
-      updateNodeConfig(newNode.id, defaultConfigs[nodeType as keyof typeof defaultConfigs] || {});
-      
+      updateNodeConfig(
+        newNode.id,
+        defaultConfigs[nodeType as keyof typeof defaultConfigs] || {}
+      );
+
       // Add the new node with proper typing
       setNodes((nds) => [...nds, newNode]);
     },
     [reactFlowInstance, setNodes, updateNodeConfig]
   );
-  
+
   // Handle background click (deselect nodes)
   const onPaneClick = useCallback(() => {
     setSelectedNodeId(null);
@@ -143,18 +154,21 @@ const FlowCanvas = () => {
       toast.error("No node selected");
       return;
     }
-    
+
     // Remove node
     setNodes((nds) => nds.filter((node) => node.id !== selectedNodeId));
-    
+
     // Remove connected edges
-    setEdges((eds) => eds.filter(
-      (edge) => edge.source !== selectedNodeId && edge.target !== selectedNodeId
-    ));
-    
+    setEdges((eds) =>
+      eds.filter(
+        (edge) =>
+          edge.source !== selectedNodeId && edge.target !== selectedNodeId
+      )
+    );
+
     // Clear selection
     setSelectedNodeId(null);
-    
+
     toast.success("Node removed");
   }, [selectedNodeId, setNodes, setEdges, setSelectedNodeId]);
 
@@ -177,9 +191,9 @@ const FlowCanvas = () => {
         <Controls />
         <MiniMap nodeStrokeWidth={3} zoomable pannable />
         <Panel position="top-right">
-          <Button 
-            variant="destructive" 
-            size="sm" 
+          <Button
+            variant="destructive"
+            size="sm"
             onClick={handleRemoveNode}
             disabled={!selectedNodeId}
             className="flex items-center gap-1"
