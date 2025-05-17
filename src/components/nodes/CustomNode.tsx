@@ -6,6 +6,11 @@ import {
   MemoryStick,
   ArrowRight,
   MousePointerBan,
+  FileText,
+  FilePlus2,
+  PackagePlus,
+  Search,
+  Activity,
 } from "lucide-react";
 
 // Define the node data type with proper index signature
@@ -29,6 +34,11 @@ const nodeTypeConfig: Record<
   tool: { icon: Hammer, color: "rgb(34, 197, 94)" },
   memory: { icon: MemoryStick, color: "rgb(168, 85, 247)" },
   output: { icon: ArrowRight, color: "rgb(249, 115, 22)" },
+  documentLoader: { icon: FileText, color: "rgb(250, 204, 21)" }, // Yellow
+  textSplitter: { icon: FilePlus2, color: "rgb(96, 165, 250)" }, // Light Blue
+  vectorstore: { icon: PackagePlus, color: "rgb(139, 92, 246)" }, // Violet
+  retriever: { icon: Search, color: "rgb(34, 211, 238)" }, // Cyan
+  embedding: { icon: Activity, color: "rgb(251, 113, 133)" }, // Pink
 };
 
 const CustomNode = memo(({ id, type, data, selected }: NodeProps<NodeData>) => {

@@ -32,6 +32,11 @@ const nodeTypes: NodeTypes = {
   tool: CustomNode as any,
   memory: CustomNode as any,
   output: CustomNode as any,
+  documentLoader: CustomNode as any,
+  textSplitter: CustomNode as any,
+  vectorstore: CustomNode as any,
+  retriever: CustomNode as any,
+  embedding: CustomNode as any,
 };
 
 const FlowCanvas = () => {
@@ -42,6 +47,7 @@ const FlowCanvas = () => {
     setEdges,
     selectedNodeId,
     setSelectedNodeId,
+    nodeConfigs,
     updateNodeConfig,
   } = useFlow();
 
@@ -129,6 +135,11 @@ const FlowCanvas = () => {
         tool: { toolName: "web-search" },
         memory: { memoryType: "buffer", window: 10 },
         output: { format: "text" },
+        documentLoader: { loaderType: "pdf", sourceUrl: "" },
+        textSplitter: { chunkSize: 500, overlap: 50 },
+        vectorstore: { type: "pinecone", indexName: "default" },
+        retriever: { topK: 5 },
+        embedding: { model: "openai-ada" },
       };
 
       // Update node configs
@@ -172,6 +183,9 @@ const FlowCanvas = () => {
     toast.success("Node removed");
   }, [selectedNodeId, setNodes, setEdges, setSelectedNodeId]);
 
+  // const hideMiniMap = Object?.keys(nodeConfigs).length > 0;
+  // console.log("hideMiniMap", hideMiniMap);
+
   return (
     <div className="flex-1 h-full" ref={reactFlowWrapper}>
       <ReactFlow
@@ -187,9 +201,17 @@ const FlowCanvas = () => {
         onDragOver={onDragOver}
         onDrop={onDrop}
       >
-        <Background gap={16} color="#334155" />
+        <Background gap={16} color="#343434" />
         <Controls />
-        <MiniMap nodeStrokeWidth={3} zoomable pannable />
+        <MiniMap
+          nodeStrokeWidth={3}
+          zoomable
+          pannable
+          bgColor="#181818"
+          nodeColor="#242424"
+          maskColor="#242424"
+          maskStrokeWidth={1}
+        />
         <Panel position="top-right">
           <Button
             variant="destructive"

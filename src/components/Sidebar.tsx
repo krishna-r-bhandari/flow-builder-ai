@@ -6,11 +6,57 @@ import {
   ArrowRight,
   ChartBar,
   MousePointerBan,
+  FileText,
+  SplitSquareVertical,
+  DatabaseZap,
+  SearchCode,
+  Sparkles,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Analytics from "./Analytics";
 
 // Define the node types and their properties
+// const nodeTypes = [
+//   {
+//     type: "trigger",
+//     label: "Trigger",
+//     icon: MousePointerBan,
+//     color: "#F0B100",
+//     description:
+//       "Starts the agent workflow when an event or input is received.",
+//   },
+//   {
+//     type: "llm",
+//     label: "LLM Node",
+//     icon: Database,
+//     color: "#3b82f6",
+//     description:
+//       "Uses a large language model (LLM) to analyze or generate text.",
+//   },
+//   {
+//     type: "tool",
+//     label: "Tool Node",
+//     icon: Hammer,
+//     color: "#22c55e",
+//     description:
+//       "Connects to external tools or APIs for executing specific actions.",
+//   },
+//   {
+//     type: "memory",
+//     label: "Memory Node",
+//     icon: MemoryStick,
+//     color: "#a855f7",
+//     description: "Stores context or retrieves data from memory across steps.",
+//   },
+//   {
+//     type: "output",
+//     label: "Output Node",
+//     icon: ArrowRight,
+//     color: "#f97316",
+//     description: "Displays or returns the final result of the agent workflow.",
+//   },
+// ];
+
 const nodeTypes = [
   {
     type: "trigger",
@@ -50,6 +96,41 @@ const nodeTypes = [
     color: "#f97316",
     description: "Displays or returns the final result of the agent workflow.",
   },
+  {
+    type: "documentLoader",
+    label: "Document Loader",
+    icon: FileText, // Add `import { FileText } from "lucide-react";`
+    color: "#eab308", // yellow-500
+    description: "Imports and processes external documents for use.",
+  },
+  {
+    type: "textSplitter",
+    label: "Text Splitter",
+    icon: SplitSquareVertical, // Add `import { SplitSquareVertical } from "lucide-react";`
+    color: "#60a5fa", // blue-400
+    description: "Splits documents into smaller, manageable text chunks.",
+  },
+  {
+    type: "vectorstore",
+    label: "Vectorstore",
+    icon: DatabaseZap, // Add `import { DatabaseZap } from "lucide-react";`
+    color: "#8b5cf6", // violet-500
+    description: "Stores and retrieves vector embeddings for fast search.",
+  },
+  {
+    type: "retriever",
+    label: "Retriever",
+    icon: SearchCode, // Add `import { SearchCode } from "lucide-react";`
+    color: "#22d3ee", // cyan-400
+    description: "Finds relevant data via semantic similarity search.",
+  },
+  {
+    type: "embedding",
+    label: "Embedding Generator",
+    icon: Sparkles, // Add `import { Sparkles } from "lucide-react";`
+    color: "#fb7185", // rose-400
+    description: "Generates embeddings from input text using AI models.",
+  },
 ];
 
 const Sidebar = () => {
@@ -59,7 +140,7 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 bg-sidebar border-r border-border p-4 overflow-y-auto">
+    <aside className="max-w-72 w-full bg-sidebar border-r border-border p-2 overflow-y-auto">
       <Tabs defaultValue="components">
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="components">Components</TabsTrigger>

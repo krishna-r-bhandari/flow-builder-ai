@@ -69,6 +69,11 @@ export default {
           tool: "#22c55e", // green-500
           memory: "#a855f7", // purple-500
           output: "#f97316", // orange-500
+          documentLoader: "#eab308", // yellow-500
+          textSplitter: "#60a5fa", // blue-400
+          vectorstore: "#8b5cf6", // violet-500
+          retriever: "#22d3ee", // cyan-400
+          embedding: "#fb7185", // rose-400
         },
       },
       borderRadius: {
