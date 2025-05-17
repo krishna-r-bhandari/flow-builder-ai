@@ -1,17 +1,29 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFlow } from '@/context/FlowContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Check, Save } from 'lucide-react';
+import { toast } from 'sonner';
 
 const PropertiesPanel = () => {
   const { selectedNodeId, nodes, nodeConfigs, updateNodeConfig } = useFlow();
+  const [localConfig, setLocalConfig] = useState<Record<string, any>>({});
+  const [hasChanges, setHasChanges] = useState(false);
   
   const selectedNode = nodes.find(node => node.id === selectedNodeId);
-  const nodeConfig = selectedNodeId ? nodeConfigs[selectedNodeId] || {} : {};
   const nodeType = selectedNode?.type || '';
+
+  // Load node config when a new node is selected
+  useEffect(() => {
+    if (selectedNodeId) {
+      const config = nodeConfigs[selectedNodeId] || {};
+      setLocalConfig(config);
+      setHasChanges(false);
+    }
+  }, [selectedNodeId, nodeConfigs]);
 
   if (!selectedNodeId) {
     return (
@@ -24,11 +36,18 @@ const PropertiesPanel = () => {
   }
 
   const handleInputChange = (key: string, value: any) => {
-    updateNodeConfig(selectedNodeId, { [key]: value });
+    setLocalConfig(prev => ({
+      ...prev,
+      [key]: value
+    }));
+    setHasChanges(true);
   };
 
   const handleSave = () => {
-    console.log('Saving node config:', { id: selectedNodeId, config: nodeConfig });
+    updateNodeConfig(selectedNodeId, localConfig);
+    setHasChanges(false);
+    toast.success("Changes saved successfully");
+    console.log('Saving node config:', { id: selectedNodeId, config: localConfig });
   };
 
   // Render different properties based on node type
@@ -41,7 +60,7 @@ const PropertiesPanel = () => {
               <div className="space-y-2">
                 <Label htmlFor="model">Model</Label>
                 <Select 
-                  value={nodeConfig.model || "gpt-4"}
+                  value={localConfig.model || "gpt-4"}
                   onValueChange={(value) => handleInputChange('model', value)}
                 >
                   <SelectTrigger>
@@ -59,7 +78,7 @@ const PropertiesPanel = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="temperature">
-                  Temperature: {nodeConfig.temperature || 0.7}
+                  Temperature: {localConfig.temperature || 0.7}
                 </Label>
                 <Input
                   id="temperature"
@@ -67,9 +86,22 @@ const PropertiesPanel = () => {
                   min="0"
                   max="2"
                   step="0.1"
-                  value={nodeConfig.temperature || 0.7}
+                  value={localConfig.temperature || 0.7}
                   onChange={(e) => handleInputChange('temperature', parseFloat(e.target.value))}
                   className="cursor-pointer"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="maxTokens">Max Tokens</Label>
+                <Input
+                  id="maxTokens"
+                  type="number"
+                  min="10"
+                  max="4096"
+                  placeholder="1024"
+                  value={localConfig.maxTokens || 1024}
+                  onChange={(e) => handleInputChange('maxTokens', parseInt(e.target.value))}
                 />
               </div>
             </div>
@@ -83,7 +115,7 @@ const PropertiesPanel = () => {
               <div className="space-y-2">
                 <Label htmlFor="toolName">Tool Name</Label>
                 <Select 
-                  value={nodeConfig.toolName || "web-search"}
+                  value={localConfig.toolName || "web-search"}
                   onValueChange={(value) => handleInputChange('toolName', value)}
                 >
                   <SelectTrigger>
@@ -99,17 +131,30 @@ const PropertiesPanel = () => {
                 </Select>
               </div>
               
-              {nodeConfig.toolName === 'custom' && (
+              {localConfig.toolName === 'custom' && (
                 <div className="space-y-2">
                   <Label htmlFor="customTool">Custom Tool URL</Label>
                   <Input
                     id="customTool"
                     placeholder="https://api.example.com"
-                    value={nodeConfig.customUrl || ''}
+                    value={localConfig.customUrl || ''}
                     onChange={(e) => handleInputChange('customUrl', e.target.value)}
                   />
                 </div>
               )}
+
+              <div className="space-y-2">
+                <Label htmlFor="timeout">Timeout (ms)</Label>
+                <Input
+                  id="timeout"
+                  type="number"
+                  min="500"
+                  max="30000"
+                  placeholder="5000"
+                  value={localConfig.timeout || 5000}
+                  onChange={(e) => handleInputChange('timeout', parseInt(e.target.value))}
+                />
+              </div>
             </div>
           </>
         );
@@ -121,7 +166,7 @@ const PropertiesPanel = () => {
               <div className="space-y-2">
                 <Label htmlFor="memoryType">Memory Type</Label>
                 <Select 
-                  value={nodeConfig.memoryType || "buffer"}
+                  value={localConfig.memoryType || "buffer"}
                   onValueChange={(value) => handleInputChange('memoryType', value)}
                 >
                   <SelectTrigger>
@@ -144,10 +189,29 @@ const PropertiesPanel = () => {
                   min="1"
                   max="100"
                   placeholder="10"
-                  value={nodeConfig.window || 10}
+                  value={localConfig.window || 10}
                   onChange={(e) => handleInputChange('window', parseInt(e.target.value))}
                 />
               </div>
+
+              {localConfig.memoryType === 'vector' && (
+                <div className="space-y-2">
+                  <Label htmlFor="embeddingModel">Embedding Model</Label>
+                  <Select 
+                    value={localConfig.embeddingModel || "text-embedding-ada-002"}
+                    onValueChange={(value) => handleInputChange('embeddingModel', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="text-embedding-ada-002">Ada 002</SelectItem>
+                      <SelectItem value="text-embedding-3-small">Embedding 3 Small</SelectItem>
+                      <SelectItem value="text-embedding-3-large">Embedding 3 Large</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           </>
         );
@@ -159,7 +223,7 @@ const PropertiesPanel = () => {
               <div className="space-y-2">
                 <Label htmlFor="format">Output Format</Label>
                 <Select 
-                  value={nodeConfig.format || "text"}
+                  value={localConfig.format || "text"}
                   onValueChange={(value) => handleInputChange('format', value)}
                 >
                   <SelectTrigger>
@@ -172,6 +236,19 @@ const PropertiesPanel = () => {
                     <SelectItem value="html">HTML</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="maxLength">Max Length</Label>
+                <Input
+                  id="maxLength"
+                  type="number"
+                  min="10"
+                  max="10000"
+                  placeholder="1000"
+                  value={localConfig.maxLength || 1000}
+                  onChange={(e) => handleInputChange('maxLength', parseInt(e.target.value))}
+                />
               </div>
             </div>
           </>
@@ -195,10 +272,22 @@ const PropertiesPanel = () => {
       
       <div className="mt-8">
         <Button 
-          className="w-full"
+          className="w-full flex items-center justify-center gap-2"
           onClick={handleSave}
+          disabled={!hasChanges}
+          variant={hasChanges ? "default" : "secondary"}
         >
-          Save Changes
+          {hasChanges ? (
+            <>
+              <Save size={16} />
+              Save Changes
+            </>
+          ) : (
+            <>
+              <Check size={16} />
+              Saved
+            </>
+          )}
         </Button>
       </div>
     </div>

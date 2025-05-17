@@ -4,8 +4,7 @@ import {
   ReactFlow, 
   Background, 
   Controls, 
-  MiniMap, 
-  NodeTypes,
+  MiniMap,
   Connection, 
   Edge, 
   Node,
@@ -15,16 +14,19 @@ import {
   NodeChange,
   EdgeChange,
   addEdge,
-  ReactFlowInstance,
+  Panel,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { Trash2 } from 'lucide-react';
 
 import CustomNode from './nodes/CustomNode';
 import { useFlow } from '@/context/FlowContext';
 import { NodeData } from './nodes/CustomNode';
+import { Button } from './ui/button';
+import { toast } from 'sonner';
 
 // Define node types
-const nodeTypes: NodeTypes = {
+const nodeTypes = {
   llm: CustomNode,
   tool: CustomNode,
   memory: CustomNode,
@@ -37,6 +39,7 @@ const FlowCanvas = () => {
     edges, 
     setNodes, 
     setEdges, 
+    selectedNodeId,
     setSelectedNodeId,
     updateNodeConfig 
   } = useFlow();
@@ -108,7 +111,7 @@ const FlowCanvas = () => {
         position,
         data: {
           label: `${nodeType.charAt(0).toUpperCase() + nodeType.slice(1)} Node`,
-        },
+        } as NodeData,
       };
       
       // Initialize default node config based on type
@@ -133,6 +136,27 @@ const FlowCanvas = () => {
     setSelectedNodeId(null);
   }, [setSelectedNodeId]);
 
+  // Handle node deletion
+  const handleRemoveNode = useCallback(() => {
+    if (!selectedNodeId) {
+      toast.error("No node selected");
+      return;
+    }
+    
+    // Remove node
+    setNodes((nds) => nds.filter((node) => node.id !== selectedNodeId));
+    
+    // Remove connected edges
+    setEdges((eds) => eds.filter(
+      (edge) => edge.source !== selectedNodeId && edge.target !== selectedNodeId
+    ));
+    
+    // Clear selection
+    setSelectedNodeId(null);
+    
+    toast.success("Node removed");
+  }, [selectedNodeId, setNodes, setEdges, setSelectedNodeId]);
+
   return (
     <div className="flex-1 h-full" ref={reactFlowWrapper}>
       <ReactFlow
@@ -151,6 +175,18 @@ const FlowCanvas = () => {
         <Background gap={16} color="#334155" />
         <Controls />
         <MiniMap nodeStrokeWidth={3} zoomable pannable />
+        <Panel position="top-right">
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            onClick={handleRemoveNode}
+            disabled={!selectedNodeId}
+            className="flex items-center gap-1"
+          >
+            <Trash2 size={16} />
+            <span>Remove Node</span>
+          </Button>
+        </Panel>
       </ReactFlow>
     </div>
   );

@@ -5,7 +5,7 @@ import { Database, Hammer, MemoryStick, ArrowRight } from 'lucide-react';
 
 // Define the node data type
 export interface NodeData {
-  label?: string | React.ReactNode;
+  label?: string;
   analytics?: {
     processingTime?: number;
     failureRate?: number;
