@@ -14,7 +14,6 @@ import {
   applyEdgeChanges,
   NodeChange,
   EdgeChange,
-  XYPosition,
   addEdge,
   ReactFlowInstance,
 } from '@xyflow/react';
@@ -22,6 +21,7 @@ import '@xyflow/react/dist/style.css';
 
 import CustomNode from './nodes/CustomNode';
 import { useFlow } from '@/context/FlowContext';
+import { NodeData } from './nodes/CustomNode';
 
 // Define node types
 const nodeTypes: NodeTypes = {
@@ -59,7 +59,11 @@ const FlowCanvas = () => {
   // Handle creating new connections between nodes
   const onConnect = useCallback(
     (connection: Connection) => {
-      setEdges((eds) => addEdge({ ...connection, id: `edge-${Date.now()}`, animated: true }, eds));
+      setEdges((eds) => addEdge({ 
+        ...connection, 
+        id: `edge-${Date.now()}`, 
+        animated: true 
+      }, eds));
     },
     [setEdges]
   );

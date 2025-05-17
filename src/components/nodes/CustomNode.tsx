@@ -4,8 +4,8 @@ import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Database, Hammer, MemoryStick, ArrowRight } from 'lucide-react';
 
 // Define the node data type
-interface NodeData {
-  label?: React.ReactNode;
+export interface NodeData {
+  label?: string | React.ReactNode;
 }
 
 // Mapping of node types to colors and icons
@@ -16,9 +16,9 @@ const nodeTypeConfig: Record<string, { icon: React.ElementType; color: string }>
   output: { icon: ArrowRight, color: 'rgb(249, 115, 22)' },
 };
 
-const CustomNode: React.FC<NodeProps<NodeData>> = ({ id, type, data, selected }) => {
+const CustomNode = memo(({ id, type, data, selected }: NodeProps) => {
   const nodeType = type || 'llm';
-  const { icon: Icon, color } = nodeTypeConfig[nodeType] || nodeTypeConfig.llm;
+  const { icon: Icon, color } = nodeTypeConfig[nodeType as string] || nodeTypeConfig.llm;
   
   return (
     <div 
@@ -43,6 +43,6 @@ const CustomNode: React.FC<NodeProps<NodeData>> = ({ id, type, data, selected })
       />
     </div>
   );
-};
+});
 
-export default memo(CustomNode);
+export default CustomNode;
