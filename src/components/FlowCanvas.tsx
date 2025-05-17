@@ -15,6 +15,7 @@ import {
   EdgeChange,
   addEdge,
   Panel,
+  NodeTypes,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Trash2 } from 'lucide-react';
@@ -22,15 +23,15 @@ import { Trash2 } from 'lucide-react';
 import CustomNode from './nodes/CustomNode';
 import { useFlow } from '@/context/FlowContext';
 import { NodeData } from './nodes/CustomNode';
-import { Button } from './ui/button';
+import { Button } from "./ui/button";
 import { toast } from 'sonner';
 
-// Define node types
-const nodeTypes = {
-  llm: CustomNode,
-  tool: CustomNode,
-  memory: CustomNode,
-  output: CustomNode,
+// Define node types with proper casting
+const nodeTypes: NodeTypes = {
+  llm: CustomNode as any,
+  tool: CustomNode as any,
+  memory: CustomNode as any,
+  output: CustomNode as any,
 };
 
 const FlowCanvas = () => {
@@ -104,14 +105,14 @@ const FlowCanvas = () => {
         y: event.clientY - reactFlowBounds.top,
       });
       
-      // Create a new node
-      const newNode = {
+      // Create a new node with proper typing
+      const newNode: Node<NodeData> = {
         id: `${nodeType}-${Date.now()}`,
         type: nodeType,
         position,
         data: {
           label: `${nodeType.charAt(0).toUpperCase() + nodeType.slice(1)} Node`,
-        } as NodeData,
+        },
       };
       
       // Initialize default node config based on type
@@ -125,7 +126,7 @@ const FlowCanvas = () => {
       // Update node configs
       updateNodeConfig(newNode.id, defaultConfigs[nodeType as keyof typeof defaultConfigs] || {});
       
-      // Add the new node
+      // Add the new node with proper typing
       setNodes((nds) => [...nds, newNode]);
     },
     [reactFlowInstance, setNodes, updateNodeConfig]

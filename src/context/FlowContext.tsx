@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Node, Edge } from '@xyflow/react';
+import { NodeData } from '@/components/nodes/CustomNode';
 
 // Define types for our node configurations
 type NodeConfig = {
@@ -24,12 +25,12 @@ type SimulationResults = {
 };
 
 type FlowContextType = {
-  nodes: Node[];
+  nodes: Node<NodeData>[];
   edges: Edge[];
   selectedNodeId: string | null;
   nodeConfigs: Record<string, NodeConfig>;
   simulationResults: SimulationResults | null;
-  setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
+  setNodes: React.Dispatch<React.SetStateAction<Node<NodeData>[]>>;
   setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
   setSelectedNodeId: React.Dispatch<React.SetStateAction<string | null>>;
   updateNodeConfig: (id: string, config: Partial<NodeConfig>) => void;
@@ -40,7 +41,7 @@ type FlowContextType = {
 const FlowContext = createContext<FlowContextType | undefined>(undefined);
 
 export const FlowProvider = ({ children }: { children: ReactNode }) => {
-  const [nodes, setNodes] = useState<Node[]>([]);
+  const [nodes, setNodes] = useState<Node<NodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [nodeConfigs, setNodeConfigs] = useState<Record<string, NodeConfig>>({});

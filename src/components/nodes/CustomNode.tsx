@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Database, Hammer, MemoryStick, ArrowRight } from 'lucide-react';
 
-// Define the node data type
+// Define the node data type with proper index signature
 export interface NodeData {
   label?: string;
   analytics?: {
@@ -11,6 +11,7 @@ export interface NodeData {
     failureRate?: number;
     throughput?: number;
   };
+  [key: string]: any; // Add index signature to satisfy Record<string, unknown>
 }
 
 // Mapping of node types to colors and icons
