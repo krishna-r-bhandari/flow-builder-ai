@@ -1,29 +1,104 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useFlow } from '@/context/FlowContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Save } from 'lucide-react';
+import { Check, Save, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+// Define schemas for each node type validation
+const llmSchema = z.object({
+  model: z.string().min(1, "Model is required"),
+  temperature: z.number().min(0).max(2),
+  maxTokens: z.number().int().positive().max(4096)
+});
+
+const toolSchema = z.object({
+  toolName: z.string().min(1, "Tool name is required"),
+  customUrl: z.string().url().optional().or(z.literal('')),
+  timeout: z.number().int().min(500).max(30000)
+});
+
+const memorySchema = z.object({
+  memoryType: z.string().min(1, "Memory type is required"),
+  window: z.number().int().min(1).max(100),
+  embeddingModel: z.string().optional()
+});
+
+const outputSchema = z.object({
+  format: z.string().min(1, "Format is required"),
+  maxLength: z.number().int().min(10).max(10000)
+});
+
+// Union schema for all node types
+const configSchema = z.discriminatedUnion('nodeType', [
+  z.object({ nodeType: z.literal('llm'), ...llmSchema.shape }),
+  z.object({ nodeType: z.literal('tool'), ...toolSchema.shape }),
+  z.object({ nodeType: z.literal('memory'), ...memorySchema.shape }),
+  z.object({ nodeType: z.literal('output'), ...outputSchema.shape }),
+]);
 
 const PropertiesPanel = () => {
-  const { selectedNodeId, nodes, nodeConfigs, updateNodeConfig } = useFlow();
-  const [localConfig, setLocalConfig] = useState<Record<string, any>>({});
-  const [hasChanges, setHasChanges] = useState(false);
+  const { selectedNodeId, nodes, nodeConfigs, updateNodeConfig, setNodes } = useFlow();
   
   const selectedNode = nodes.find(node => node.id === selectedNodeId);
   const nodeType = selectedNode?.type || '';
+
+  // Get appropriate schema based on node type
+  const getSchemaForNodeType = () => {
+    switch (nodeType) {
+      case 'llm': return llmSchema;
+      case 'tool': return toolSchema;
+      case 'memory': return memorySchema;
+      case 'output': return outputSchema;
+      default: return z.object({});
+    }
+  };
+
+  const form = useForm({
+    resolver: zodResolver(getSchemaForNodeType()),
+    defaultValues: {
+      // Default values will be set in useEffect
+      ...nodeConfigs[selectedNodeId] || {}
+    }
+  });
 
   // Load node config when a new node is selected
   useEffect(() => {
     if (selectedNodeId) {
       const config = nodeConfigs[selectedNodeId] || {};
-      setLocalConfig(config);
-      setHasChanges(false);
+      form.reset(config);
     }
-  }, [selectedNodeId, nodeConfigs]);
+  }, [selectedNodeId, nodeConfigs, form]);
+
+  const handleSave = (values) => {
+    updateNodeConfig(selectedNodeId, values);
+    toast.success("Changes saved successfully");
+    console.log('Saving node config:', { id: selectedNodeId, config: values });
+  };
+
+  const handleRemoveNode = () => {
+    if (!selectedNodeId) return;
+    
+    setNodes((nds) => nds.filter((node) => node.id !== selectedNodeId));
+    toast.success("Node removed");
+  };
 
   if (!selectedNodeId) {
     return (
@@ -35,223 +110,367 @@ const PropertiesPanel = () => {
     );
   }
 
-  const handleInputChange = (key: string, value: any) => {
-    setLocalConfig(prev => ({
-      ...prev,
-      [key]: value
-    }));
-    setHasChanges(true);
-  };
-
-  const handleSave = () => {
-    updateNodeConfig(selectedNodeId, localConfig);
-    setHasChanges(false);
-    toast.success("Changes saved successfully");
-    console.log('Saving node config:', { id: selectedNodeId, config: localConfig });
-  };
-
   // Render different properties based on node type
   const renderProperties = () => {
     switch (nodeType) {
       case 'llm':
         return (
-          <>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="model">Model</Label>
-                <Select 
-                  value={localConfig.model || "gpt-4"}
-                  onValueChange={(value) => handleInputChange('model', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Model" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="gpt-4">GPT-4</SelectItem>
-                    <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                    <SelectItem value="claude-3-opus">Claude 3 Opus</SelectItem>
-                    <SelectItem value="claude-3-sonnet">Claude 3 Sonnet</SelectItem>
-                    <SelectItem value="mistral-large">Mistral Large</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="model"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Model</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value || "gpt-4"}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Model" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="gpt-4">GPT-4</SelectItem>
+                        <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                        <SelectItem value="claude-3-opus">Claude 3 Opus</SelectItem>
+                        <SelectItem value="claude-3-sonnet">Claude 3 Sonnet</SelectItem>
+                        <SelectItem value="mistral-large">Mistral Large</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
-              <div className="space-y-2">
-                <Label htmlFor="temperature">
-                  Temperature: {localConfig.temperature || 0.7}
-                </Label>
-                <Input
-                  id="temperature"
-                  type="range"
-                  min="0"
-                  max="2"
-                  step="0.1"
-                  value={localConfig.temperature || 0.7}
-                  onChange={(e) => handleInputChange('temperature', parseFloat(e.target.value))}
-                  className="cursor-pointer"
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="temperature"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Temperature: {field.value || 0.7}
+                    </FormLabel>
+                    <FormControl>
+                      <Slider
+                        min={0}
+                        max={2}
+                        step={0.1}
+                        defaultValue={[field.value || 0.7]}
+                        onValueChange={(vals) => field.onChange(vals[0])}
+                        className="cursor-pointer"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="maxTokens">Max Tokens</Label>
-                <Input
-                  id="maxTokens"
-                  type="number"
-                  min="10"
-                  max="4096"
-                  placeholder="1024"
-                  value={localConfig.maxTokens || 1024}
-                  onChange={(e) => handleInputChange('maxTokens', parseInt(e.target.value))}
-                />
+              <FormField
+                control={form.control}
+                name="maxTokens"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Max Tokens</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="10"
+                        max="4096"
+                        placeholder="1024"
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex space-x-2 pt-4">
+                <Button 
+                  type="submit"
+                  className="flex-1 flex items-center justify-center gap-2"
+                >
+                  <Save size={16} />
+                  Save
+                </Button>
+                <Button 
+                  type="button"
+                  variant="destructive" 
+                  onClick={handleRemoveNode}
+                >
+                  <Trash2 size={16} />
+                </Button>
               </div>
-            </div>
-          </>
+            </form>
+          </Form>
         );
       
       case 'tool':
         return (
-          <>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="toolName">Tool Name</Label>
-                <Select 
-                  value={localConfig.toolName || "web-search"}
-                  onValueChange={(value) => handleInputChange('toolName', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Tool" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="web-search">Web Search</SelectItem>
-                    <SelectItem value="calculator">Calculator</SelectItem>
-                    <SelectItem value="weather">Weather</SelectItem>
-                    <SelectItem value="code-interpreter">Code Interpreter</SelectItem>
-                    <SelectItem value="custom">Custom Tool</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="toolName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tool Name</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value || "web-search"}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Tool" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="web-search">Web Search</SelectItem>
+                        <SelectItem value="calculator">Calculator</SelectItem>
+                        <SelectItem value="weather">Weather</SelectItem>
+                        <SelectItem value="code-interpreter">Code Interpreter</SelectItem>
+                        <SelectItem value="custom">Custom Tool</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
-              {localConfig.toolName === 'custom' && (
-                <div className="space-y-2">
-                  <Label htmlFor="customTool">Custom Tool URL</Label>
-                  <Input
-                    id="customTool"
-                    placeholder="https://api.example.com"
-                    value={localConfig.customUrl || ''}
-                    onChange={(e) => handleInputChange('customUrl', e.target.value)}
-                  />
-                </div>
+              {form.watch('toolName') === 'custom' && (
+                <FormField
+                  control={form.control}
+                  name="customUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Custom Tool URL</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="https://api.example.com"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
 
-              <div className="space-y-2">
-                <Label htmlFor="timeout">Timeout (ms)</Label>
-                <Input
-                  id="timeout"
-                  type="number"
-                  min="500"
-                  max="30000"
-                  placeholder="5000"
-                  value={localConfig.timeout || 5000}
-                  onChange={(e) => handleInputChange('timeout', parseInt(e.target.value))}
-                />
+              <FormField
+                control={form.control}
+                name="timeout"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Timeout (ms)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="500"
+                        max="30000"
+                        placeholder="5000"
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex space-x-2 pt-4">
+                <Button 
+                  type="submit"
+                  className="flex-1 flex items-center justify-center gap-2"
+                >
+                  <Save size={16} />
+                  Save
+                </Button>
+                <Button 
+                  type="button"
+                  variant="destructive" 
+                  onClick={handleRemoveNode}
+                >
+                  <Trash2 size={16} />
+                </Button>
               </div>
-            </div>
-          </>
+            </form>
+          </Form>
         );
       
       case 'memory':
         return (
-          <>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="memoryType">Memory Type</Label>
-                <Select 
-                  value={localConfig.memoryType || "buffer"}
-                  onValueChange={(value) => handleInputChange('memoryType', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Memory Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="buffer">Buffer Memory</SelectItem>
-                    <SelectItem value="conversation">Conversation Memory</SelectItem>
-                    <SelectItem value="vector">Vector Store</SelectItem>
-                    <SelectItem value="summary">Summary Memory</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="memoryType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Memory Type</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value || "buffer"}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Memory Type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="buffer">Buffer Memory</SelectItem>
+                        <SelectItem value="conversation">Conversation Memory</SelectItem>
+                        <SelectItem value="vector">Vector Store</SelectItem>
+                        <SelectItem value="summary">Summary Memory</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
-              <div className="space-y-2">
-                <Label htmlFor="window">Window Size</Label>
-                <Input
-                  id="window"
-                  type="number"
-                  min="1"
-                  max="100"
-                  placeholder="10"
-                  value={localConfig.window || 10}
-                  onChange={(e) => handleInputChange('window', parseInt(e.target.value))}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="window"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Window Size</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="100"
+                        placeholder="10"
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              {localConfig.memoryType === 'vector' && (
-                <div className="space-y-2">
-                  <Label htmlFor="embeddingModel">Embedding Model</Label>
-                  <Select 
-                    value={localConfig.embeddingModel || "text-embedding-ada-002"}
-                    onValueChange={(value) => handleInputChange('embeddingModel', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="text-embedding-ada-002">Ada 002</SelectItem>
-                      <SelectItem value="text-embedding-3-small">Embedding 3 Small</SelectItem>
-                      <SelectItem value="text-embedding-3-large">Embedding 3 Large</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              {form.watch('memoryType') === 'vector' && (
+                <FormField
+                  control={form.control}
+                  name="embeddingModel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Embedding Model</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value || "text-embedding-ada-002"}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Model" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="text-embedding-ada-002">Ada 002</SelectItem>
+                          <SelectItem value="text-embedding-3-small">Embedding 3 Small</SelectItem>
+                          <SelectItem value="text-embedding-3-large">Embedding 3 Large</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            </div>
-          </>
+              
+              <div className="flex space-x-2 pt-4">
+                <Button 
+                  type="submit"
+                  className="flex-1 flex items-center justify-center gap-2"
+                >
+                  <Save size={16} />
+                  Save
+                </Button>
+                <Button 
+                  type="button"
+                  variant="destructive" 
+                  onClick={handleRemoveNode}
+                >
+                  <Trash2 size={16} />
+                </Button>
+              </div>
+            </form>
+          </Form>
         );
       
       case 'output':
         return (
-          <>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="format">Output Format</Label>
-                <Select 
-                  value={localConfig.format || "text"}
-                  onValueChange={(value) => handleInputChange('format', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Format" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="text">Plain Text</SelectItem>
-                    <SelectItem value="markdown">Markdown</SelectItem>
-                    <SelectItem value="json">JSON</SelectItem>
-                    <SelectItem value="html">HTML</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="format"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Output Format</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value || "text"}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Format" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="text">Plain Text</SelectItem>
+                        <SelectItem value="markdown">Markdown</SelectItem>
+                        <SelectItem value="json">JSON</SelectItem>
+                        <SelectItem value="html">HTML</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="maxLength">Max Length</Label>
-                <Input
-                  id="maxLength"
-                  type="number"
-                  min="10"
-                  max="10000"
-                  placeholder="1000"
-                  value={localConfig.maxLength || 1000}
-                  onChange={(e) => handleInputChange('maxLength', parseInt(e.target.value))}
-                />
+              <FormField
+                control={form.control}
+                name="maxLength"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Max Length</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="10"
+                        max="10000"
+                        placeholder="1000"
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex space-x-2 pt-4">
+                <Button 
+                  type="submit"
+                  className="flex-1 flex items-center justify-center gap-2"
+                >
+                  <Save size={16} />
+                  Save
+                </Button>
+                <Button 
+                  type="button"
+                  variant="destructive" 
+                  onClick={handleRemoveNode}
+                >
+                  <Trash2 size={16} />
+                </Button>
               </div>
-            </div>
-          </>
+            </form>
+          </Form>
         );
       
       default:
@@ -269,27 +488,6 @@ const PropertiesPanel = () => {
       </div>
       
       {renderProperties()}
-      
-      <div className="mt-8">
-        <Button 
-          className="w-full flex items-center justify-center gap-2"
-          onClick={handleSave}
-          disabled={!hasChanges}
-          variant={hasChanges ? "default" : "secondary"}
-        >
-          {hasChanges ? (
-            <>
-              <Save size={16} />
-              Save Changes
-            </>
-          ) : (
-            <>
-              <Check size={16} />
-              Saved
-            </>
-          )}
-        </Button>
-      </div>
     </div>
   );
 };
