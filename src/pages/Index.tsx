@@ -1,7 +1,8 @@
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import { Play } from 'lucide-react';
+import { toast } from "sonner";
 
 import { FlowProvider, useFlow } from '@/context/FlowContext';
 import Sidebar from '@/components/Sidebar';
@@ -11,15 +12,33 @@ import { Button } from '@/components/ui/button';
 
 // Top navbar component
 const Navbar = () => {
-  const { nodes, edges, nodeConfigs } = useFlow();
+  const { nodes, edges, runSimulation } = useFlow();
   
-  const handleRunSimulation = useCallback(() => {
-    console.log('Running simulation with:', {
-      nodes,
-      edges,
-      nodeConfigs,
-    });
-  }, [nodes, edges, nodeConfigs]);
+  const handleRunSimulation = () => {
+    if (nodes.length === 0) {
+      toast.error("Please add nodes to your flow before running a simulation");
+      return;
+    }
+    
+    if (edges.length === 0) {
+      toast.warning("Your flow has no connections between nodes");
+    }
+    
+    toast.promise(
+      // In a real app, this would be an async function
+      () => new Promise((resolve) => {
+        setTimeout(() => {
+          runSimulation();
+          resolve({});
+        }, 1000);
+      }),
+      {
+        loading: "Running simulation...",
+        success: "Simulation completed! Check the Analytics tab for results",
+        error: "Error running simulation"
+      }
+    );
+  };
   
   return (
     <header className="h-12 bg-sidebar border-b border-border flex items-center justify-between px-4">
