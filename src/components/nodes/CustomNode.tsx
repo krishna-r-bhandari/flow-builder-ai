@@ -1,14 +1,14 @@
 
 import React, { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { Database, Tool, MemoryStick, Output } from 'lucide-react';
+import { Database, Hammer, MemoryStick, ArrowRight } from 'lucide-react';
 
 // Mapping of node types to colors and icons
 const nodeTypeConfig: Record<string, { icon: React.ElementType; color: string }> = {
   llm: { icon: Database, color: 'rgb(59, 130, 246)' },
-  tool: { icon: Tool, color: 'rgb(34, 197, 94)' },
+  tool: { icon: Hammer, color: 'rgb(34, 197, 94)' },
   memory: { icon: MemoryStick, color: 'rgb(168, 85, 247)' },
-  output: { icon: Output, color: 'rgb(249, 115, 22)' },
+  output: { icon: ArrowRight, color: 'rgb(249, 115, 22)' },
 };
 
 const CustomNode: React.FC<NodeProps> = ({ id, type, data, selected }) => {

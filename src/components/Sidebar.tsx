@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Database, Tool, MemoryStick, Output } from 'lucide-react';
+import { Database, Hammer, MemoryStick, ArrowRight } from 'lucide-react';
 
 // Define the node types and their properties
 const nodeTypes = [
@@ -14,7 +14,7 @@ const nodeTypes = [
   {
     type: 'tool',
     label: 'Tool Node',
-    icon: Tool,
+    icon: Hammer,
     color: '#22c55e',
     description: 'Use tools and APIs'
   },
@@ -28,7 +28,7 @@ const nodeTypes = [
   {
     type: 'output',
     label: 'Output Node',
-    icon: Output,
+    icon: ArrowRight,
     color: '#f97316',
     description: 'Present results'
   }
