@@ -14,7 +14,8 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer 
+  ResponsiveContainer,
+  Cell
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
