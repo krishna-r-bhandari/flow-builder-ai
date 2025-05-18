@@ -48,7 +48,7 @@
 
 //   return (
 //     <header className="h-12 bg-sidebar border-b border-border flex items-center justify-between px-4">
-//       <h1 className="font-semibold text-base">Agent Builder Studio</h1>
+//       <h1 className="font-semibold text-base">Agent Studio</h1>
 
 //       <div className="flex items-center space-x-2">
 //         <Button
@@ -302,7 +302,7 @@
 
 //   return (
 //     <header className="h-12 bg-sidebar border-b border-border flex items-center justify-between px-4">
-//       <h1 className="font-semibold text-base">Agent Builder Studio</h1>
+//       <h1 className="font-semibold text-base">Agent Studio</h1>
 
 //       <div className="flex items-center space-x-2">
 //         <Button
@@ -618,7 +618,7 @@ const Navbar = () => {
   return (
     <header className="h-12 bg-sidebar border-b border-sidebar-border flex items-center justify-between px-4">
       <h1 className="font-semibold text-base text-sidebar-foreground">
-        Agent Builder Studio
+        Agent Studio
       </h1>
 
       <div className="flex items-center space-x-2">
