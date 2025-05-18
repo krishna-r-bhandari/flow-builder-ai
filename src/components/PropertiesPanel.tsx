@@ -30,6 +30,7 @@ const schemas = {
     trigger: z.string().min(1, "Trigger type is required"),
   }),
 
+  // In the schemas object
   llm: z.object({
     model: z.string().min(1, "Model is required"),
     provider: z.string().min(1, "Provider is required"),
@@ -881,7 +882,7 @@ const FormComponents = {
                     />
                     <Input
                       placeholder="Value"
-                      value={value as string} // FIX: Type casting here
+                      value={value}
                       onChange={(e) => {
                         const metadata = { ...form.watch("metadata") };
                         metadata[key] = e.target.value;
@@ -1686,7 +1687,7 @@ const FormComponents = {
                     />
                     <Input
                       placeholder="Value"
-                      value={value as string} // FIX: Type casting here
+                      value={value}
                       onChange={(e) => {
                         const filter = { ...form.watch("filter") };
                         filter[key] = e.target.value;

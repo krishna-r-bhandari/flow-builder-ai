@@ -1,6 +1,12 @@
-
 import React from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -11,7 +17,15 @@ import { Switch } from "@/components/ui/switch";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const apiKeySchema = z.object({
@@ -46,8 +60,8 @@ const DashboardSettings = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
-        <p className="text-muted-foreground mt-2">
+        <h2 className="text-lg font-bold tracking-tight">Settings</h2>
+        <p className="text-muted-foreground mt-2 text-sm">
           Configure your account preferences and API integrations.
         </p>
       </div>
@@ -58,7 +72,7 @@ const DashboardSettings = () => {
           <TabsTrigger value="preferences">Preferences</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
         </TabsList>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <TabsContent value="api-keys" className="space-y-6">
@@ -77,7 +91,11 @@ const DashboardSettings = () => {
                       <FormItem>
                         <FormLabel>OpenAI API Key</FormLabel>
                         <FormControl>
-                          <Input placeholder="sk-..." {...field} type="password" />
+                          <Input
+                            placeholder="sk-..."
+                            {...field}
+                            type="password"
+                          />
                         </FormControl>
                         <FormDescription>
                           Required for GPT-4 and other OpenAI models.
@@ -86,7 +104,7 @@ const DashboardSettings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="anthropicKey"
@@ -94,7 +112,11 @@ const DashboardSettings = () => {
                       <FormItem>
                         <FormLabel>Anthropic API Key</FormLabel>
                         <FormControl>
-                          <Input placeholder="sk-ant-..." {...field} type="password" />
+                          <Input
+                            placeholder="sk-ant-..."
+                            {...field}
+                            type="password"
+                          />
                         </FormControl>
                         <FormDescription>
                           Optional: Used for Claude models.
@@ -103,7 +125,7 @@ const DashboardSettings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="stabilityKey"
@@ -111,7 +133,11 @@ const DashboardSettings = () => {
                       <FormItem>
                         <FormLabel>Stability AI API Key</FormLabel>
                         <FormControl>
-                          <Input placeholder="sk-..." {...field} type="password" />
+                          <Input
+                            placeholder="sk-..."
+                            {...field}
+                            type="password"
+                          />
                         </FormControl>
                         <FormDescription>
                           Optional: Required for image generation capabilities.
@@ -126,7 +152,7 @@ const DashboardSettings = () => {
                 </CardFooter>
               </Card>
             </TabsContent>
-            
+
             <TabsContent value="preferences" className="space-y-6">
               <Card>
                 <CardHeader>
@@ -178,9 +204,9 @@ const DashboardSettings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <Separator />
-                  
+
                   <FormField
                     control={form.control}
                     name="notificationsEnabled"
@@ -203,7 +229,7 @@ const DashboardSettings = () => {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="usageAlerts"
@@ -232,7 +258,7 @@ const DashboardSettings = () => {
                 </CardFooter>
               </Card>
             </TabsContent>
-            
+
             <TabsContent value="billing" className="space-y-6">
               <Card>
                 <CardHeader>
@@ -246,14 +272,16 @@ const DashboardSettings = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="font-medium">Current Plan</h4>
-                        <p className="text-sm text-muted-foreground">Pro Plan ($49/month)</p>
+                        <p className="text-sm text-muted-foreground">
+                          Pro Plan ($49/month)
+                        </p>
                       </div>
                       <Button variant="outline">Change Plan</Button>
                     </div>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div>
                     <h4 className="font-medium mb-3">Payment Method</h4>
                     <div className="flex items-center justify-between rounded-md border p-3">
@@ -261,15 +289,19 @@ const DashboardSettings = () => {
                         <div className="h-8 w-12 rounded bg-muted mr-3"></div>
                         <div>
                           <p className="text-sm font-medium">•••• 4242</p>
-                          <p className="text-xs text-muted-foreground">Expires 05/25</p>
+                          <p className="text-xs text-muted-foreground">
+                            Expires 05/25
+                          </p>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm">Edit</Button>
+                      <Button variant="ghost" size="sm">
+                        Edit
+                      </Button>
                     </div>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div>
                     <h4 className="font-medium mb-3">Billing History</h4>
                     <div className="rounded-md border">
@@ -289,7 +321,9 @@ const DashboardSettings = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" className="w-full">Download Invoices</Button>
+                  <Button variant="outline" className="w-full">
+                    Download Invoices
+                  </Button>
                 </CardFooter>
               </Card>
             </TabsContent>
