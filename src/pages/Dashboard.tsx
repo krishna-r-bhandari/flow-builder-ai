@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Home, BarChart, Settings, Plus, User } from "lucide-react";
@@ -8,7 +7,7 @@ const Dashboard = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // If we're at the dashboard root, navigate to home
   React.useEffect(() => {
     if (location.pathname === "/dashboard") {
@@ -39,7 +38,9 @@ const Dashboard = () => {
       >
         <div className="p-4 h-16 flex items-center justify-between border-b border-border">
           {!isSidebarCollapsed && (
-            <span className="text-lg font-semibold text-sidebar-primary">AI Dashboard</span>
+            <span className="text-lg font-semibold text-sidebar-primary">
+              AI Dashboard
+            </span>
           )}
           <button
             onClick={toggleSidebar}
@@ -58,12 +59,16 @@ const Dashboard = () => {
                     to={item.path}
                     className={cn(
                       "flex items-center px-4 py-3 text-sm hover:bg-sidebar-accent",
-                      isActive(item.path) ? "bg-sidebar-accent text-sidebar-primary font-medium" : "text-sidebar-foreground",
+                      isActive(item.path)
+                        ? "bg-sidebar-accent text-sidebar-primary font-medium"
+                        : "text-sidebar-foreground",
                       isSidebarCollapsed ? "justify-center" : "justify-start"
                     )}
                   >
                     <item.icon size={20} />
-                    {!isSidebarCollapsed && <span className="ml-3">{item.label}</span>}
+                    {!isSidebarCollapsed && (
+                      <span className="ml-3">{item.label}</span>
+                    )}
                   </Link>
                 </li>
               ))}
@@ -75,22 +80,19 @@ const Dashboard = () => {
       {/* Main content */}
       <div className="flex flex-col flex-1 overflow-hidden">
         <header className="h-16 border-b border-border bg-background flex items-center justify-between px-6">
-          <h1 className="text-xl font-medium">
+          <h1 className="text-lg font-medium">
             {location.pathname.includes("home") && "Dashboard"}
             {location.pathname.includes("analytics") && "Analytics"}
             {location.pathname.includes("settings") && "Settings"}
             {location.pathname.includes("create-agent") && "Create Agent"}
           </h1>
           <div className="flex items-center space-x-4">
-            <Link 
-              to="/dashboard/create-agent" 
-              className="flex items-center px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90"
+            <Link
+              to="/dashboard/create-agent"
+              className="flex items-center text-sm px-3 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Plus size={16} className="mr-2" /> Create Agent
             </Link>
-            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-              <User size={16} />
-            </div>
           </div>
         </header>
 

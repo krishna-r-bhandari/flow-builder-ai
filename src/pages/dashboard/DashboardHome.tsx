@@ -1,6 +1,12 @@
-
 import React from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +17,8 @@ const dummyAgents = [
   {
     id: "1",
     name: "Customer Support Bot",
-    description: "Handles customer inquiries and support tickets automatically.",
+    description:
+      "Handles customer inquiries and support tickets automatically.",
     status: "active",
     lastUpdated: "2025-05-15",
     usageCount: 1423,
@@ -47,16 +54,11 @@ const DashboardHome = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">My AI Agents</h2>
-          <p className="text-muted-foreground mt-2">
+          <h2 className="text-lg font-bold tracking-tight">My AI Agents</h2>
+          <p className="text-muted-foreground mt-2 text-sm">
             Manage and monitor your AI agents from one place.
           </p>
         </div>
-        <Link to="/dashboard/create-agent">
-          <Button className="mt-4 md:mt-0">
-            <Plus size={16} className="mr-2" /> Create New Agent
-          </Button>
-        </Link>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -65,7 +67,9 @@ const DashboardHome = () => {
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-xl">{agent.name}</CardTitle>
-                <Badge variant={agent.status === "active" ? "default" : "outline"}>
+                <Badge
+                  variant={agent.status === "active" ? "default" : "outline"}
+                >
                   {agent.status === "active" ? "Active" : "Inactive"}
                 </Badge>
               </div>
@@ -84,7 +88,11 @@ const DashboardHome = () => {
               </div>
             </CardContent>
             <CardFooter className="border-t bg-muted/50 py-3">
-              <Button variant="ghost" size="sm" className="w-full justify-between">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-between"
+              >
                 View Details
                 <ArrowRight size={14} />
               </Button>
@@ -115,24 +123,30 @@ const DashboardHome = () => {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Total Agents</span>
-                <span className="text-lg font-medium">{dummyAgents.length}</span>
+                <span className="text-lg font-medium">
+                  {dummyAgents.length}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Active Agents</span>
                 <span className="text-lg font-medium">
-                  {dummyAgents.filter(a => a.status === "active").length}
+                  {dummyAgents.filter((a) => a.status === "active").length}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Total Interactions</span>
+                <span className="text-muted-foreground">
+                  Total Interactions
+                </span>
                 <span className="text-lg font-medium">
-                  {dummyAgents.reduce((sum, agent) => sum + agent.usageCount, 0).toLocaleString()}
+                  {dummyAgents
+                    .reduce((sum, agent) => sum + agent.usageCount, 0)
+                    .toLocaleString()}
                 </span>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Recent Activities</CardTitle>
@@ -140,10 +154,26 @@ const DashboardHome = () => {
           <CardContent>
             <div className="space-y-4">
               {[
-                { agent: "Customer Support Bot", action: "Responded to a ticket", time: "10 min ago" },
-                { agent: "Data Analysis Assistant", action: "Generated a report", time: "45 min ago" },
-                { agent: "Sales Copilot", action: "Drafted 3 emails", time: "1 hour ago" },
-                { agent: "Email Summarizer", action: "Summarized 2 threads", time: "2 hours ago" },
+                {
+                  agent: "Customer Support Bot",
+                  action: "Responded to a ticket",
+                  time: "10 min ago",
+                },
+                {
+                  agent: "Data Analysis Assistant",
+                  action: "Generated a report",
+                  time: "45 min ago",
+                },
+                {
+                  agent: "Sales Copilot",
+                  action: "Drafted 3 emails",
+                  time: "1 hour ago",
+                },
+                {
+                  agent: "Email Summarizer",
+                  action: "Summarized 2 threads",
+                  time: "2 hours ago",
+                },
               ].map((activity, index) => (
                 <div key={index} className="flex items-start">
                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mt-1 mr-3">
@@ -151,8 +181,12 @@ const DashboardHome = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium">{activity.agent}</p>
-                    <p className="text-xs text-muted-foreground">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground">{activity.time}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {activity.action}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {activity.time}
+                    </p>
                   </div>
                 </div>
               ))}
