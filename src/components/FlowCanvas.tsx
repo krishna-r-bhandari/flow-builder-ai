@@ -17,7 +17,7 @@ import {
   NodeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Trash2 } from "lucide-react";
+import { Play, Trash2 } from "lucide-react";
 
 import CustomNode from "./nodes/CustomNode";
 import { useFlow } from "@/context/FlowContext";
@@ -39,7 +39,7 @@ const nodeTypes: NodeTypes = {
   embedding: CustomNode as any,
 };
 
-const FlowCanvas = () => {
+const FlowCanvas = ({ setActiveTab }) => {
   const {
     nodes,
     edges,
@@ -50,6 +50,8 @@ const FlowCanvas = () => {
     nodeConfigs,
     updateNodeConfig,
   } = useFlow();
+
+  const isOutputAvailable = nodes?.some((item) => item?.type === "output");
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useReactFlow();
@@ -187,7 +189,7 @@ const FlowCanvas = () => {
   // console.log("hideMiniMap", hideMiniMap);
 
   return (
-    <div className="flex-1 h-full" ref={reactFlowWrapper}>
+    <div className="flex-1 h-full relative relative" ref={reactFlowWrapper}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -225,6 +227,18 @@ const FlowCanvas = () => {
           </Button>
         </Panel>
       </ReactFlow>
+
+      {isOutputAvailable && (
+        <div className="absolute bottom-6 left-16">
+          <Button
+            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
+            size="sm"
+            onClick={() => setActiveTab("simulation")}
+          >
+            <Play fill="#ffffff" className="w-4 h-4 mr-2" /> Run Test
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

@@ -397,7 +397,15 @@
 
 import React, { useState } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
-import { Play, Save, MessageSquare, Workflow, ArrowRight } from "lucide-react";
+import {
+  Play,
+  Save,
+  MessageSquare,
+  Workflow,
+  ArrowRight,
+  Cross,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { FlowProvider, useFlow } from "@/context/FlowContext";
@@ -408,7 +416,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Simulation environment component
-const SimulationEnvironment = () => {
+const SimulationEnvironment = ({ setActiveTab }) => {
   const { nodes, edges, nodeConfigs } = useFlow();
   const [messages, setMessages] = useState([
     {
@@ -469,58 +477,59 @@ const SimulationEnvironment = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full border-l border-border">
+    <div className="flex-1 flex flex-col h-full border-l border-border relative">
       <div className="flex-1 p-4 overflow-y-auto bg-background">
-        <div className="max-w-3xl mx-auto space-y-4">
+        <div className="max-w-2xl mx-auto space-y-4">
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`p-3 rounded-lg ${
+              className={`px-2 py-1.5 rounded-md text-sm ${
                 message.role === "user"
-                  ? "bg-accent ml-12 text-accent-foreground"
+                  ? "bg-accent border border-border ml-20 text-accent-foreground"
                   : message.role === "assistant"
-                  ? "bg-muted border border-border mr-12 text-muted-foreground"
-                  : "bg-muted text-muted-foreground text-sm italic"
+                  ? "border border-border mr-20 text-white"
+                  : "bg-red-900 text-red-400 text-sm italic"
               }`}
             >
               {message.content}
             </div>
           ))}
           {isLoading && (
-            <div className="bg-muted border border-border mr-12 p-3 rounded-lg">
-              <div className="flex space-x-1 items-center">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                <div
-                  className="w-2 h-2 rounded-full bg-primary animate-pulse"
-                  style={{ animationDelay: "0.2s" }}
-                ></div>
-                <div
-                  className="w-2 h-2 rounded-full bg-primary animate-pulse"
-                  style={{ animationDelay: "0.4s" }}
-                ></div>
-              </div>
+            <div className="mr-12 rounded-lg space-y-2 animate-pulse">
+              <div className="h-4 bg-primary/20 rounded w-4/5"></div>
+              <div className="h-4 bg-primary/20 rounded w-3/5"></div>
             </div>
           )}
         </div>
       </div>
 
       <div className="p-4 border-t border-border bg-background">
-        <div className="max-w-3xl mx-auto flex">
+        <div className="max-w-2xl mx-auto flex">
           <input
             type="text"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
             placeholder="Type a message to test your agent..."
-            className="flex-1 bg-muted border border-border rounded-l-md px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            className="flex-1 bg-muted border border-border rounded-l-md px-4 py-2 text-sm text-foreground focus:outline-none"
           />
           <Button
             onClick={handleSendMessage}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-l-none"
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-l-none"
           >
             <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
+      </div>
+
+      <div className="absolute top-4 right-4">
+        <button
+          type="button"
+          className="w-8 h-8 rounded-md flex justify-center items-center bg-accent hover:bg-card ml-12 text-accent-foreground text-xs"
+          onClick={() => setActiveTab("builder")}
+        >
+          <X size={20} />
+        </button>
       </div>
     </div>
   );
@@ -642,7 +651,7 @@ const Workspace = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-background">
-      <div className="border-b border-border">
+      {/* <div className="border-b border-border">
         <TabsList className="bg-transparent border-b-0 p-0">
           <TabsTrigger
             value="builder"
@@ -662,19 +671,19 @@ const Workspace = () => {
             Simulation
           </TabsTrigger>
         </TabsList>
-      </div>
+      </div> */}
 
       <div className="flex-1 flex overflow-hidden">
         <Sidebar />
 
         {activeTab === "builder" ? (
           <>
-            <FlowCanvas />
+            <FlowCanvas setActiveTab={setActiveTab} />
             <PropertiesPanel />
           </>
         ) : (
           <>
-            <SimulationEnvironment />
+            <SimulationEnvironment setActiveTab={setActiveTab} />
             {/* <AnalyticsPanel /> */}
           </>
         )}

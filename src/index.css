@@ -217,3 +217,7 @@ body {
   stroke: black;
   stroke-width: 1px;
 } */
+
+.react-flow__node-output {
+  background-color: transparent !important;
+}

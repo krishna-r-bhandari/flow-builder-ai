@@ -189,9 +189,25 @@ const FormComponents = {
             const provider = form.watch("provider") || "openai";
             const modelOptions = {
               openai: [
-                { value: "gpt-4-turbo", label: "GPT-4 Turbo" },
-                { value: "gpt-4", label: "GPT-4" },
-                { value: "gpt-3.5-turbo", label: "GPT-3.5 Turbo" },
+                { value: "gpt-3.5-turbo-1106", label: "gpt-3.5-turbo-1106" },
+                { value: "gpt-3.5-turbo-0125", label: "gpt-3.5-turbo-0125" },
+                { value: "gpt-4-0613", label: "gpt-4-0613" },
+                { value: "gpt-4-1106-preview", label: "gpt-4-1106-preview" },
+                { value: "gpt-4-0125-preview", label: "gpt-4-0125-preview" },
+                { value: "gpt-4o-2024-05-13", label: "gpt-4o-2024-05-13" },
+                {
+                  value: "gpt-4o-mini-2024-07-18",
+                  label: "gpt-4o-mini-2024-07-18",
+                },
+                { value: "gpt-4-turbo-preview", label: "gpt-4-turbo-preview" },
+                {
+                  value: "gpt-4-turbo-2024-04-09",
+                  label: "gpt-4-turbo-2024-04-09",
+                },
+                { value: "gpt-4-turbo", label: "gpt-4-turbo" },
+                { value: "o3-mini-2025-01-31", label: "o3-mini-2025-01-31" },
+                { value: "o1-mini-2024-09-12", label: "o1-mini-2024-09-12" },
+                { value: "o1-2024-12-17", label: "o1-2024-12-17" },
               ],
               anthropic: [
                 { value: "claude-3-opus", label: "Claude 3 Opus" },
@@ -208,8 +224,28 @@ const FormComponents = {
                 { value: "mistral-tiny", label: "Mistral Tiny" },
               ],
               azure: [
-                { value: "azure-gpt-4", label: "Azure GPT-4" },
-                { value: "azure-gpt-35", label: "Azure GPT-3.5" },
+                { value: "gpt-4o-2024-05-13", label: "gpt-4o-2024-05-13" },
+                {
+                  value: "gpt-4-turbo-2024-04-09",
+                  label: "gpt-4-turbo-2024-04-09",
+                },
+                { value: "gpt-4-0613", label: "gpt-4-0613" },
+                { value: "gpt-4-32k-0613", label: "gpt-4-32k-0613" },
+                { value: "gpt-4-0125-preview", label: "gpt-4-0125-preview" },
+                { value: "gpt-4-1106-preview", label: "gpt-4-1106-preview" },
+                { value: "gpt-35-turbo-0125", label: "gpt-35-turbo-0125" },
+                { value: "gpt-35-turbo-0613", label: "gpt-35-turbo-0613" },
+                {
+                  value: "gpt-35-turbo-16k-0613",
+                  label: "gpt-35-turbo-16k-0613",
+                },
+                {
+                  value: "gpt-4o-mini-2024-07-18",
+                  label: "gpt-4o-mini-2024-07-18",
+                },
+                { value: "o3-mini", label: "o3-mini" },
+                { value: "o1-mini", label: "o1-mini" },
+                { value: "o1", label: "o1" },
               ],
             };
 
@@ -218,7 +254,7 @@ const FormComponents = {
                 <FormLabel>Model</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value || ""}
+                  defaultValue={field.value || "gpt-4o-mini-2024-07-18"}
                   disabled={!provider}
                 >
                   <FormControl>
