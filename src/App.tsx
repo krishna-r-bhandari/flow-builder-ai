@@ -8,10 +8,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import LandingPage from "./pages/LandingPage";
-import DashboardLayout from "./components/DashboardLayout";
+import DashboardHome from "./pages/dashboard/DashboardHome";
 import DashboardAnalytics from "./pages/dashboard/DashboardAnalytics";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
-import DashboardHome from "./pages/dashboard/DashboardHome";
 
 const queryClient = new QueryClient();
 
@@ -24,13 +23,11 @@ const App = () => (
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="*" element={<NotFound />} />
-          
-          {/* Dashboard Routes */}
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardHome />} />
-            <Route path="analytics" element={<DashboardAnalytics />} />
-            <Route path="settings" element={<DashboardSettings />} />
-            <Route path="create-agent" element={<Index />} />
+          <Route path="/dashboard" element={<Dashboard />}>
+            <Route path="/dashboard/home" element={<DashboardHome />} />
+            <Route path="/dashboard/analytics" element={<DashboardAnalytics />} />
+            <Route path="/dashboard/settings" element={<DashboardSettings />} />
+            <Route path="/dashboard/create-agent" element={<Index />} />
           </Route>
         </Routes>
       </BrowserRouter>

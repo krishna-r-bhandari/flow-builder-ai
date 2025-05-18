@@ -1,99 +1,86 @@
 
 import React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-// Define schema for API keys form
-const apiKeysFormSchema = z.object({
-  openaiApiKey: z.string().min(1, "OpenAI API key is required"),
-  anthropicApiKey: z.string().optional(),
-  stabilityAiApiKey: z.string().optional(),
+const apiKeySchema = z.object({
+  openaiKey: z.string().min(1, "OpenAI API key is required"),
+  anthropicKey: z.string().optional(),
+  stabilityKey: z.string().optional(),
+  notificationsEnabled: z.boolean().default(true),
+  usageAlerts: z.boolean().default(true),
+  theme: z.enum(["light", "dark", "system"]).default("system"),
 });
 
-// Define schema for preferences form
-const preferencesFormSchema = z.object({
-  defaultModel: z.enum(["gpt-4", "gpt-3.5-turbo", "claude-2", "custom"]),
-  emailNotifications: z.boolean(),
-  usageAlerts: z.boolean(),
-});
+type ApiKeyFormValues = z.infer<typeof apiKeySchema>;
 
 const DashboardSettings = () => {
-  // API Keys form
-  const apiKeysForm = useForm<z.infer<typeof apiKeysFormSchema>>({
-    resolver: zodResolver(apiKeysFormSchema),
+  const form = useForm<ApiKeyFormValues>({
+    resolver: zodResolver(apiKeySchema),
     defaultValues: {
-      openaiApiKey: "",
-      anthropicApiKey: "",
-      stabilityAiApiKey: "",
-    },
-  });
-
-  // Preferences form
-  const preferencesForm = useForm<z.infer<typeof preferencesFormSchema>>({
-    resolver: zodResolver(preferencesFormSchema),
-    defaultValues: {
-      defaultModel: "gpt-4",
-      emailNotifications: true,
+      openaiKey: "",
+      anthropicKey: "",
+      stabilityKey: "",
+      notificationsEnabled: true,
       usageAlerts: true,
+      theme: "system",
     },
   });
 
-  // Handler for API Keys form submission
-  function onApiKeysSubmit(values: z.infer<typeof apiKeysFormSchema>) {
-    toast.success("API keys updated successfully");
-    console.log(values);
-  }
-
-  // Handler for preferences form submission
-  function onPreferencesSubmit(values: z.infer<typeof preferencesFormSchema>) {
-    toast.success("Preferences updated successfully");
-    console.log(values);
+  function onSubmit(data: ApiKeyFormValues) {
+    toast.success("Settings saved successfully!");
+    console.log(data);
   }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
+        <p className="text-muted-foreground mt-2">
+          Configure your account preferences and API integrations.
+        </p>
+      </div>
 
-      <Tabs defaultValue="api-keys" className="space-y-6">
-        <TabsList>
+      <Tabs defaultValue="api-keys" className="w-full">
+        <TabsList className="mb-4">
           <TabsTrigger value="api-keys">API Keys</TabsTrigger>
           <TabsTrigger value="preferences">Preferences</TabsTrigger>
+          <TabsTrigger value="billing">Billing</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="api-keys" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>API Keys Configuration</CardTitle>
-              <CardDescription>
-                Add your API keys to connect with AI providers. Your keys are securely encrypted.
-              </CardDescription>
-            </CardHeader>
-            <Form {...apiKeysForm}>
-              <form onSubmit={apiKeysForm.handleSubmit(onApiKeysSubmit)}>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <TabsContent value="api-keys" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>API Integration</CardTitle>
+                  <CardDescription>
+                    Connect your AI service providers to power your agents.
+                  </CardDescription>
+                </CardHeader>
                 <CardContent className="space-y-6">
                   <FormField
-                    control={apiKeysForm.control}
-                    name="openaiApiKey"
+                    control={form.control}
+                    name="openaiKey"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>OpenAI API Key</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="sk-..." 
-                            {...field} 
-                            type="password" 
-                          />
+                          <Input placeholder="sk-..." {...field} type="password" />
                         </FormControl>
                         <FormDescription>
-                          Required for using GPT models
+                          Required for GPT-4 and other OpenAI models.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -101,20 +88,16 @@ const DashboardSettings = () => {
                   />
                   
                   <FormField
-                    control={apiKeysForm.control}
-                    name="anthropicApiKey"
+                    control={form.control}
+                    name="anthropicKey"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Anthropic API Key</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="sk_ant-..." 
-                            {...field} 
-                            type="password" 
-                          />
+                          <Input placeholder="sk-ant-..." {...field} type="password" />
                         </FormControl>
                         <FormDescription>
-                          Optional: For using Claude models
+                          Optional: Used for Claude models.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -122,20 +105,16 @@ const DashboardSettings = () => {
                   />
                   
                   <FormField
-                    control={apiKeysForm.control}
-                    name="stabilityAiApiKey"
+                    control={form.control}
+                    name="stabilityKey"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Stability AI Key</FormLabel>
+                        <FormLabel>Stability AI API Key</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="sk-..." 
-                            {...field} 
-                            type="password" 
-                          />
+                          <Input placeholder="sk-..." {...field} type="password" />
                         </FormControl>
                         <FormDescription>
-                          Optional: For image generation features
+                          Optional: Required for image generation capabilities.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -145,158 +124,177 @@ const DashboardSettings = () => {
                 <CardFooter>
                   <Button type="submit">Save API Keys</Button>
                 </CardFooter>
-              </form>
-            </Form>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Usage & Billing</CardTitle>
-              <CardDescription>
-                View your current usage and manage billing settings.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between items-center pb-4 border-b">
-                <div>
-                  <p className="font-medium">Current Plan</p>
-                  <p className="text-sm text-muted-foreground">Pro Plan ($29/month)</p>
-                </div>
-                <Button variant="outline">Change Plan</Button>
-              </div>
-              
-              <div className="space-y-2">
-                <p className="font-medium">Usage This Month</p>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <p className="text-muted-foreground">API Calls</p>
-                    <p className="text-2xl font-bold">12,405</p>
-                  </div>
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <p className="text-muted-foreground">Tokens Used</p>
-                    <p className="text-2xl font-bold">1.2M</p>
-                  </div>
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <p className="text-muted-foreground">Cost</p>
-                    <p className="text-2xl font-bold">$18.72</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="preferences" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>User Preferences</CardTitle>
-              <CardDescription>
-                Customize how you interact with the AI Studio platform.
-              </CardDescription>
-            </CardHeader>
-            <Form {...preferencesForm}>
-              <form onSubmit={preferencesForm.handleSubmit(onPreferencesSubmit)}>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="preferences" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>App Preferences</CardTitle>
+                  <CardDescription>
+                    Customize your dashboard experience.
+                  </CardDescription>
+                </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Model Settings</h3>
-                    <FormField
-                      control={preferencesForm.control}
-                      name="defaultModel"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Default AI Model</FormLabel>
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <Button
-                              type="button"
-                              variant={field.value === "gpt-4" ? "default" : "outline"}
-                              className="w-full justify-start"
-                              onClick={() => field.onChange("gpt-4")}
-                            >
-                              GPT-4
-                            </Button>
-                            <Button
-                              type="button"
-                              variant={field.value === "gpt-3.5-turbo" ? "default" : "outline"}
-                              className="w-full justify-start"
-                              onClick={() => field.onChange("gpt-3.5-turbo")}
-                            >
-                              GPT-3.5
-                            </Button>
-                            <Button
-                              type="button"
-                              variant={field.value === "claude-2" ? "default" : "outline"}
-                              className="w-full justify-start"
-                              onClick={() => field.onChange("claude-2")}
-                            >
-                              Claude 2
-                            </Button>
-                            <Button
-                              type="button"
-                              variant={field.value === "custom" ? "default" : "outline"}
-                              className="w-full justify-start"
-                              onClick={() => field.onChange("custom")}
-                            >
-                              Custom
-                            </Button>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="theme"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Theme</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col space-y-1"
+                          >
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="light" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Light
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="dark" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Dark
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="system" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                System
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Notifications</h3>
-                    
-                    <FormField
-                      control={preferencesForm.control}
-                      name="emailNotifications"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">Email Notifications</FormLabel>
-                            <FormDescription>
-                              Receive updates about your agents via email
-                            </FormDescription>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={preferencesForm.control}
-                      name="usageAlerts"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">Usage Alerts</FormLabel>
-                            <FormDescription>
-                              Get notified when approaching usage limits
-                            </FormDescription>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <Separator />
+                  
+                  <FormField
+                    control={form.control}
+                    name="notificationsEnabled"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            Notifications
+                          </FormLabel>
+                          <FormDescription>
+                            Receive notifications about agent activities.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="usageAlerts"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            Usage Alerts
+                          </FormLabel>
+                          <FormDescription>
+                            Get notified when you approach API usage limits.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
                 </CardContent>
                 <CardFooter>
                   <Button type="submit">Save Preferences</Button>
                 </CardFooter>
-              </form>
-            </Form>
-          </Card>
-        </TabsContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="billing" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Billing Information</CardTitle>
+                  <CardDescription>
+                    Manage your subscription and payment methods.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="rounded-md bg-muted p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-medium">Current Plan</h4>
+                        <p className="text-sm text-muted-foreground">Pro Plan ($49/month)</p>
+                      </div>
+                      <Button variant="outline">Change Plan</Button>
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div>
+                    <h4 className="font-medium mb-3">Payment Method</h4>
+                    <div className="flex items-center justify-between rounded-md border p-3">
+                      <div className="flex items-center">
+                        <div className="h-8 w-12 rounded bg-muted mr-3"></div>
+                        <div>
+                          <p className="text-sm font-medium">•••• 4242</p>
+                          <p className="text-xs text-muted-foreground">Expires 05/25</p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="sm">Edit</Button>
+                    </div>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div>
+                    <h4 className="font-medium mb-3">Billing History</h4>
+                    <div className="rounded-md border">
+                      <div className="p-3 border-b flex justify-between text-sm font-medium">
+                        <div>May 1, 2025</div>
+                        <div>$49.00</div>
+                      </div>
+                      <div className="p-3 border-b flex justify-between text-sm font-medium">
+                        <div>Apr 1, 2025</div>
+                        <div>$49.00</div>
+                      </div>
+                      <div className="p-3 flex justify-between text-sm font-medium">
+                        <div>Mar 1, 2025</div>
+                        <div>$49.00</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline" className="w-full">Download Invoices</Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          </form>
+        </Form>
       </Tabs>
     </div>
   );
