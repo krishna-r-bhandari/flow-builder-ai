@@ -38,9 +38,9 @@ const Dashboard = () => {
       >
         <div className="p-4 h-16 flex items-center justify-between border-b border-border">
           {!isSidebarCollapsed && (
-            <span className="text-lg font-semibold text-sidebar-primary">
-              AI Dashboard
-            </span>
+            <Link to={"/"} className="text-lg font-medium text-sidebar-primary">
+              Agent Studio
+            </Link>
           )}
           <button
             onClick={toggleSidebar}
@@ -89,7 +89,7 @@ const Dashboard = () => {
           <div className="flex items-center space-x-4">
             <Link
               to="/dashboard/create-agent"
-              className="flex items-center text-sm px-3 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90"
+              className="flex items-center text-sm px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Plus size={16} className="mr-2" /> Create Agent
             </Link>

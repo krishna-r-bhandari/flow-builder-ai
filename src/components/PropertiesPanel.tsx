@@ -24,11 +24,48 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+// Simple cron expression validator
+const isValidCronExpression = (cron) => {
+  if (!cron) return false;
+
+  const parts = cron.trim().split(/\s+/);
+  if (parts.length !== 5) return false;
+
+  // This is a simplified validation - in production use a dedicated library
+  return true;
+};
+
 // Node type schemas
 const schemas = {
-  trigger: z.object({
-    trigger: z.string().min(1, "Trigger type is required"),
-  }),
+  // trigger: z.object({
+  //   trigger: z.string().min(1, "Trigger type is required"),
+  // }),
+
+  trigger: z
+    .object({
+      trigger: z.string().min(1, "Trigger type is required"),
+      // Schedule properties - only validated when trigger is "scheduled"
+      scheduleTime: z.string().optional(),
+      scheduleRepeat: z.enum(["none", "daily", "weekly", "monthly"]).optional(),
+      cronExpression: z.string().optional(),
+
+      // Webhook properties - only validated when trigger is "webhook"
+      webhookUrl: z.string().url("Please enter a valid URL").optional(),
+      webhookMethod: z.enum(["GET", "POST", "PUT", "DELETE"]).optional(),
+      webhookSecret: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      // Only validate webhook fields if trigger type is "webhook"
+      if (data.trigger === "webhook") {
+        if (!data.webhookUrl) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Webhook URL is required",
+            path: ["webhookUrl"],
+          });
+        }
+      }
+    }),
 
   // In the schemas object
   llm: z.object({
@@ -113,39 +150,152 @@ const schemas = {
 
 // Node-specific form components
 const FormComponents = {
-  trigger: ({ form, onSubmit, onRemove }) => (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="trigger"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Trigger Type</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value || "manual"}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Trigger" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="manual">Manual</SelectItem>
-                  <SelectItem value="automatic">Automatic</SelectItem>
-                  <SelectItem value="scheduled">Scheduled</SelectItem>
-                  <SelectItem value="webhook">Webhook</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
+  // trigger: ({ form, onSubmit, onRemove }) => (
+  //   <Form {...form}>
+  //     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+  //       <FormField
+  //         control={form.control}
+  //         name="trigger"
+  //         render={({ field }) => (
+  //           <FormItem>
+  //             <FormLabel>Trigger Type</FormLabel>
+  //             <Select
+  //               onValueChange={field.onChange}
+  //               defaultValue={field.value || "manual"}
+  //             >
+  //               <FormControl>
+  //                 <SelectTrigger>
+  //                   <SelectValue placeholder="Select Trigger" />
+  //                 </SelectTrigger>
+  //               </FormControl>
+  //               <SelectContent>
+  //                 <SelectItem value="manual">Manual</SelectItem>
+  //                 <SelectItem value="automatic">Automatic</SelectItem>
+  //                 <SelectItem value="scheduled">Scheduled</SelectItem>
+  //                 <SelectItem value="webhook">Webhook</SelectItem>
+  //               </SelectContent>
+  //             </Select>
+  //             <FormMessage />
+  //           </FormItem>
+  //         )}
+  //       />
+  //       <ActionButtons onSubmit={onSubmit} onRemove={onRemove} />
+  //     </form>
+  //   </Form>
+  // ),
+
+  trigger: ({ form, onSubmit, onRemove }) => {
+    const triggerType = form.watch("trigger");
+
+    return (
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="trigger"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Trigger Type</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    // Reset related fields when trigger type changes
+                    if (value === "webhook") {
+                      form.setValue("webhookUrl", "");
+                      form.setValue("webhookMethod", "POST");
+                    }
+                  }}
+                  defaultValue={field.value || "manual"}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Trigger" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="automatic">Automatic</SelectItem>
+                    <SelectItem value="webhook">Webhook</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {triggerType === "webhook" && (
+            <div className="space-y-4 border p-4 rounded-md">
+              <FormField
+                control={form.control}
+                name="webhookUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Webhook URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://example.com/webhook"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="webhookMethod"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>HTTP Method</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || "POST"}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Method" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="GET">GET</SelectItem>
+                        <SelectItem value="POST">POST</SelectItem>
+                        <SelectItem value="PUT">PUT</SelectItem>
+                        <SelectItem value="DELETE">DELETE</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="webhookSecret"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Webhook Secret</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Secret key for verification"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           )}
-        />
-        <ActionButtons onSubmit={onSubmit} onRemove={onRemove} />
-      </form>
-    </Form>
-  ),
+
+          <ActionButtons onSubmit={onSubmit} onRemove={onRemove} />
+        </form>
+      </Form>
+    );
+  },
 
   llm: ({ form, onSubmit, onRemove }) => (
     <Form {...form}>

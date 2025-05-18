@@ -405,6 +405,7 @@ import {
   ArrowRight,
   Cross,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -414,6 +415,7 @@ import PropertiesPanel from "@/components/PropertiesPanel";
 import FlowCanvas from "@/components/FlowCanvas";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "react-router-dom";
 
 // Simulation environment component
 const SimulationEnvironment = ({ setActiveTab }) => {
@@ -617,9 +619,19 @@ const Navbar = () => {
 
   return (
     <header className="h-12 bg-sidebar border-b border-sidebar-border flex items-center justify-between px-4">
-      <h1 className="font-semibold text-base text-sidebar-foreground">
-        Agent Studio
-      </h1>
+      <div className="flex items-center space-x-4">
+        <Link
+          type="button"
+          className="w-8 h-8 rounded-md flex justify-center items-center bg-accent hover:bg-card text-accent-foreground text-xs"
+          to={"/dashboard"}
+        >
+          <ArrowLeft size={20} />
+        </Link>
+
+        <h1 className="font-semibold text-base text-sidebar-foreground">
+          Agent Studio
+        </h1>
+      </div>
 
       <div className="flex items-center space-x-2">
         <Button

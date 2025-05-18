@@ -88,14 +88,16 @@ const DashboardHome = () => {
               </div>
             </CardContent>
             <CardFooter className="border-t bg-muted/50 py-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-between"
-              >
-                View Details
-                <ArrowRight size={14} />
-              </Button>
+              <Link to={`/dashboard/agent/123`} className="w-full">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-between"
+                >
+                  View Details
+                  <ArrowRight size={14} />
+                </Button>
+              </Link>
             </CardFooter>
           </Card>
         ))}

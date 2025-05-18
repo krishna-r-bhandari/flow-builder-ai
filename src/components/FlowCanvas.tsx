@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import {
   ReactFlow,
   Background,
@@ -24,6 +24,7 @@ import { useFlow } from "@/context/FlowContext";
 import { NodeData } from "./nodes/CustomNode";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
 
 // Define node types with proper casting
 const nodeTypes: NodeTypes = {
@@ -50,6 +51,86 @@ const FlowCanvas = ({ setActiveTab }) => {
     nodeConfigs,
     updateNodeConfig,
   } = useFlow();
+
+  const defaultNodes = [
+    {
+      id: "trigger-1747555988475",
+      type: "trigger",
+      position: {
+        x: -402.4980368708827,
+        y: -54.90803794447229,
+      },
+      data: {
+        label: "Trigger Node",
+      },
+      measured: {
+        width: 155,
+        height: 58,
+      },
+      selected: false,
+      dragging: false,
+    },
+    {
+      id: "llm-1747555998348",
+      type: "llm",
+      position: {
+        x: -400.9144906286682,
+        y: 86.58123718982954,
+      },
+      data: {
+        label: "Llm Node",
+      },
+      measured: {
+        width: 150,
+        height: 58,
+      },
+      selected: false,
+      dragging: false,
+    },
+    {
+      id: "output-1747556232561",
+      type: "output",
+      position: {
+        x: -440.4777260481096,
+        y: 226.01999513768885,
+      },
+      data: {
+        label: "Output Node",
+      },
+      measured: {
+        width: 150,
+        height: 76,
+      },
+      selected: true,
+      dragging: false,
+    },
+  ];
+
+  const defaultEdges = [
+    {
+      source: "trigger-1747555988475",
+      target: "llm-1747555998348",
+      id: "edge-1747556113533",
+      animated: true,
+    },
+    {
+      source: "llm-1747555998348",
+      target: "output-1747556232561",
+      id: "edge-1747556235975",
+      animated: true,
+    },
+  ];
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const isAgent123 = location.pathname === "/dashboard/agent/123";
+
+    if (isAgent123) {
+      if (defaultNodes.length) setNodes(defaultNodes);
+      if (defaultEdges.length) setEdges(defaultEdges);
+    }
+  }, [location.pathname]);
 
   const isOutputAvailable = nodes?.some((item) => item?.type === "output");
 

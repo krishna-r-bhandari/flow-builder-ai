@@ -31,6 +31,7 @@ const App = () => (
             <Route path="/dashboard/settings" element={<DashboardSettings />} />
           </Route>
           <Route path="/dashboard/create-agent" element={<Index />} />
+          <Route path="/dashboard/agent/:id" element={<Index />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
