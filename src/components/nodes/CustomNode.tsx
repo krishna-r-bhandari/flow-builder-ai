@@ -1,4 +1,3 @@
-
 import React, { memo } from "react";
 import { Handle, Position, NodeProps } from "@xyflow/react";
 import {
@@ -42,14 +41,10 @@ const nodeTypeConfig: Record<
   embedding: { icon: Activity, color: "rgb(251, 113, 133)" }, // Pink
 };
 
-// Remove the NodeData constraint from the function parameters
-const CustomNode = memo(({ id, type, data, selected }: NodeProps) => {
+const CustomNode = memo(({ id, type, data, selected }: NodeProps<NodeData>) => {
   const nodeType = type || "llm";
   const { icon: Icon, color } =
     nodeTypeConfig[nodeType as string] || nodeTypeConfig.llm;
-
-  // Safely cast data to NodeData type for type-safe access
-  const nodeData = data as NodeData;
 
   return (
     <div
@@ -66,21 +61,21 @@ const CustomNode = memo(({ id, type, data, selected }: NodeProps) => {
 
       <div className="flex items-center gap-2 font-medium">
         <Icon size={20} color={color} />
-        <div>{nodeData?.label || `${nodeType.toUpperCase()} Node`}</div>
+        <div>{data?.label || `${nodeType.toUpperCase()} Node`}</div>
       </div>
 
-      {nodeData?.analytics && (
+      {data?.analytics && (
         <div className="mt-2 text-xs text-muted-foreground">
-          {nodeData.analytics.processingTime !== undefined && (
+          {data.analytics.processingTime !== undefined && (
             <div className="flex justify-between">
               <span>Process time:</span>
-              <span>{nodeData.analytics.processingTime}ms</span>
+              <span>{data.analytics.processingTime}ms</span>
             </div>
           )}
-          {nodeData.analytics.throughput !== undefined && (
+          {data.analytics.throughput !== undefined && (
             <div className="flex justify-between">
               <span>Throughput:</span>
-              <span>{nodeData.analytics.throughput}/min</span>
+              <span>{data.analytics.throughput}/min</span>
             </div>
           )}
         </div>
