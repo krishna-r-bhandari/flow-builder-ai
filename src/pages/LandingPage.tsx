@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -35,43 +34,27 @@ const LandingPage = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-16 md:py-24 px-6 md:px-10">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-          <div className="flex-1 space-y-8">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter">
-              Build <span className="bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent">AI Agents</span> Without Writing Code
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl">
-              Create, deploy, and manage custom AI agents for your business with our intuitive visual builder. No technical expertise required.
-            </p>
-            <div className="flex flex-wrap gap-4 pt-4">
-              <Link to="/dashboard">
-                <Button size="lg" className="flex items-center gap-2 h-12 px-6">
-                  <span>Start Building</span>
-                  <ArrowRight size={16} />
-                </Button>
-              </Link>
-              <a href="#how-it-works">
-                <Button size="lg" variant="outline" className="h-12 px-6">
-                  See How It Works
-                </Button>
-              </a>
-            </div>
-          </div>
-          <div className="flex-1 w-full max-w-xl lg:max-w-none">
-            <div className="relative">
-              <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-primary/20 to-blue-500/20 blur-lg"></div>
-              <div className="relative bg-muted/30 border backdrop-blur-sm border-border rounded-lg shadow-xl overflow-hidden">
-                <div className="p-6">
-                  <img 
-                    src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" 
-                    alt="AI Agent Builder Interface" 
-                    className="rounded-md w-full h-auto object-cover shadow-lg"
-                  />
-                </div>
-              </div>
-            </div>
+      {/* Hero Section - Centered Text without Image */}
+      <section className="py-16 md:py-24 px-6 md:px-10 flex items-center justify-center">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter">
+            Build <span className="bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent">AI Agents</span> Without Writing Code
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Create, deploy, and manage custom AI agents for your business with our intuitive visual builder. No technical expertise required.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 pt-4">
+            <Link to="/dashboard">
+              <Button size="lg" className="flex items-center gap-2 h-12 px-6">
+                <span>Start Building</span>
+                <ArrowRight size={16} />
+              </Button>
+            </Link>
+            <a href="#how-it-works">
+              <Button size="lg" variant="outline" className="h-12 px-6">
+                See How It Works
+              </Button>
+            </a>
           </div>
         </div>
       </section>
